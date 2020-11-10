@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: content-deployment
+  labels:
+    app: content
+spec:
+  selector:
+    matchLabels:
+      app: content
+      role: web
+  template:
+    metadata:
+      labels:
+        app: content
+        role: web
+    spec:
+      containers:
+      - image: registry.openculinary.org/reciperadar/content
+        imagePullPolicy: IfNotPresent
+        name: content
+        ports:
+        - containerPort: 80
