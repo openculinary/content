@@ -33,4 +33,5 @@ tests:
 	pipenv run pytest tests
 
 render-content:
+	rm -rf public
 	pipenv run python -m web.app
