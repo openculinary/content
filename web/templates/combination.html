@@ -1,0 +1,9 @@
+{%- for product in include -%}
+<div>{{ product.singular }}</div>
+{% endfor -%}
+{%- if exclude -%}
+excluding
+{% endif -%}
+{%- for product in exclude -%}
+<div>{{ product.singular }}</div>
+{% endfor -%}
