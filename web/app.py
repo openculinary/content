@@ -68,7 +68,8 @@ def spider_combinations(include=None, exclude=None):
         yield from spider_combinations(include + [product], exclude)
         if count > total * 0.3:
             yield from spider_combinations(include, exclude + [product])
-    yield include, exclude
+    if len(include) >= 2:
+        yield include, exclude
 
 
 @freezer.register_generator
