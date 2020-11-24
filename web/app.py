@@ -48,7 +48,7 @@ def spider_combinations(include=None, exclude=None):
     exclude = exclude or []
     depth = len(set(include + exclude))
 
-    if depth > 5:
+    if depth >= 5:
         return
 
     response = requests.get(
