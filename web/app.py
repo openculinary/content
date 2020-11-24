@@ -44,16 +44,30 @@ def product_combination_with_exclusions_view(include, exclude):
 
 
 def spider_combinations(include=None, exclude=None):
+    include = include or []
+    exclude = exclude or []
+    depth = len(set(include + exclude))
+
+    if depth > 5:
+        return
+
     response = requests.get(
         url='https://www.reciperadar.com/api/recipes/explore',
         params={
             'include[]': include,
             'exclude[]': exclude,
         }
-    )
-    products = response.json()['facets']['products']
-    include = [product['key'] for product in products[:3]]
-    exclude = [product['key'] for product in products[-1:]]
+    ).json()
+
+    total = response['total']
+    choices = [product for product in response['facets']['products']]
+    for choice in choices:
+        product, count = choice['key'], choice['count']
+        if count < 10:
+            continue
+        yield from spider_combinations(include + [product], exclude)
+        if count > total * 0.3:
+            yield from spider_combinations(include, exclude + [product])
     yield include, exclude
 
 
