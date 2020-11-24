@@ -9,6 +9,7 @@ python_version = "3.8"
 [packages]
 flask = "==1.1.2"
 frozen-flask = "==0.15"
+requests = "==2.25.0"
 
 [dev-packages]
 flake8 = "*"
