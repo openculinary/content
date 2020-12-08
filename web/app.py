@@ -79,12 +79,17 @@ def product_combination_generator():
     for ingredients in spider_combinations():
         include = [i for i in ingredients if not i.startswith('-')]
         if include:
-            params = {'include': '/'.join(include)}
+            params = {
+                'include': '/'.join(include)
+            }
             yield product_combination_view.__name__, params
 
         exclude = [i for i in ingredients if i.startswith('-')]
         if include and exclude:
-            params = {'include': '/'.join(include), 'exclude': '/'.join(exclude)}
+            params = {
+                'include': '/'.join(include),
+                'exclude': '/'.join(exclude),
+            }
             yield product_combination_with_exclusions_view.__name__, params
 
 
