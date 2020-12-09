@@ -51,12 +51,10 @@ def spider_combinations(include=None, exclude=None):
     if depth >= 3:
         return
 
+    ingredients = include + [f'-{product}' for product in exclude]
     response = requests.get(
         url='https://www.reciperadar.com/api/recipes/explore',
-        params={
-            'include[]': include,
-            'exclude[]': exclude,
-        }
+        params={'ingredients[]': ingredients}
     ).json()
 
     total = response['total']
