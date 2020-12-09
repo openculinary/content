@@ -1,3 +1,5 @@
+from urllib3.util import Retry
+
 from flask import Flask, render_template
 from flask_frozen import Freezer
 import requests
@@ -6,6 +8,17 @@ app = Flask(__name__)
 app.config.update({'FREEZER_DESTINATION': '../public'})
 
 freezer = Freezer(app)
+requests_session = requests.Session()
+requests_adapter = requests.adapters.HTTPAdapter(max_retries=Retry(
+    total=None,
+    connect=None,
+    read=None,
+    redirect=None,
+    status=None,
+    other=None,
+    backoff_factor=0.1,
+))
+requests_session.mount('https', requests_adapter)
 
 
 @app.route('/products/<product_id>/')
@@ -52,7 +65,7 @@ def spider_combinations(include=None, exclude=None):
         return
 
     ingredients = include + [f'-{product}' for product in exclude]
-    response = requests.get(
+    response = requests_session.get(
         url='https://www.reciperadar.com/api/recipes/explore',
         params={'ingredients[]': ingredients}
     ).json()
