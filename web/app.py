@@ -64,11 +64,15 @@ def spider_combinations(include=None, exclude=None):
     if depth > 3:
         return
 
+    print(f'* Requesting include={include} exclude={exclude} ... ', end='')
+
     ingredients = include + [f'-{product}' for product in exclude]
     response = requests_session.get(
         url='https://www.reciperadar.com/api/recipes/explore',
         params={'ingredients[]': ingredients}
     ).json()
+
+    print(' done')
 
     total = response['total']
     choices = [product for product in response['facets']['products']]
