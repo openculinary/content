@@ -81,7 +81,7 @@ def spider_combinations(include=None, exclude=None):
         if count < 10:
             continue
         yield from spider_combinations(include + [product], exclude)
-        if count > total * 0.3:
+        if include and count > total * 0.3:
             yield from spider_combinations(include, exclude + [product])
     if len(include) >= 2:
         yield include, exclude
