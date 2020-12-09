@@ -43,16 +43,20 @@ def product_combination_with_exclusions_view(include, exclude):
     )
 
 
-def spider_combinations(ingredients=None):
-    ingredients = ingredients or []
-    depth = len(ingredients)
+def spider_combinations(include=None, exclude=None):
+    include = include or []
+    exclude = exclude or []
+    depth = len(set(include + exclude))
 
     if depth >= 3:
         return
 
     response = requests.get(
         url='https://www.reciperadar.com/api/recipes/explore',
-        params={'ingredients[]': ingredients}
+        params={
+            'include[]': include,
+            'exclude[]': exclude,
+        }
     ).json()
 
     total = response['total']
@@ -61,12 +65,11 @@ def spider_combinations(ingredients=None):
         product, count = choice['key'], choice['count']
         if count < 10:
             continue
-        yield from spider_combinations(ingredients + [product])
+        yield from spider_combinations(include + [product], exclude)
         if count > total * 0.3:
-            exclude_product = f'-{product}'
-            yield from spider_combinations(ingredients + [exclude_product])
-    if depth >= 2:
-        yield ingredients
+            yield from spider_combinations(include, exclude + [product])
+    if len(include) >= 2:
+        yield include, exclude
 
 
 @freezer.register_generator
@@ -76,15 +79,11 @@ def product_url_generator():
 
 @freezer.register_generator
 def product_combination_generator():
-    for ingredients in spider_combinations():
-        include = [i for i in ingredients if not i.startswith('-')]
-        if include:
-            params = {'include': '/'.join(include)}
-            yield product_combination_view.__name__, params
-
-        exclude = [i for i in ingredients if i.startswith('-')]
-        if include and exclude:
-            params = {'include': '/'.join(include), 'exclude': '/'.join(exclude)}
+    for include, exclude in spider_combinations():
+        params = {'include': '/'.join(include)}
+        yield product_combination_view.__name__, params
+        if exclude:
+            params = {**params, **{'exclude': '/'.join(exclude)}}
             yield product_combination_with_exclusions_view.__name__, params
 
 
