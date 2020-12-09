@@ -48,7 +48,7 @@ def spider_combinations(include=None, exclude=None):
     exclude = exclude or []
     depth = len(set(include + exclude))
 
-    if depth >= 3:
+    if depth > 3:
         return
 
     ingredients = include + [f'-{product}' for product in exclude]
