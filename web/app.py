@@ -21,15 +21,6 @@ requests_adapter = requests.adapters.HTTPAdapter(max_retries=Retry(
 requests_session.mount('https', requests_adapter)
 
 
-@app.route('/products/<product_id>/')
-def product_view(product_id):
-    product = {
-        'id': product_id,
-        'name': 'example',
-    }
-    return render_template('product.html', product=product)
-
-
 def products_from_path(path):
     products = path.split('/')
     products = [{'singular': product} for product in products]
@@ -85,11 +76,6 @@ def spider_combinations(include=None, exclude=None):
             yield from spider_combinations(include, exclude + [product])
     if len(include) >= 2:
         yield include, exclude
-
-
-@freezer.register_generator
-def product_url_generator():
-    yield product_view.__name__, {'product_id': 'example_id'}
 
 
 @freezer.register_generator
