@@ -87,26 +87,11 @@ def render_content(include=None, exclude=None):
 
 
 @app.route('/product-combinations/data.json')
-def product_combinations_root():
-    content = render_content()
-    # set noindex response header
-    return jsonify(content)
-
-
 @app.route('/product-combinations/+/<path:include>/data.json')
-def product_combination_view(include):
-    include = products_from_path(include)
-    content = render_content(include)
-    if len(include) < 2:
-        # set noindex response header
-        pass
-    return jsonify(content)
-
-
 @app.route('/product-combinations/+/<path:include>/-/<path:exclude>/data.json')
-def product_combination_with_exclusions_view(include, exclude):
-    include = products_from_path(include)
-    exclude = products_from_path(exclude)
+def product_combinations(include=None, exclude=None):
+    include = products_from_path(include) if include else []
+    exclude = products_from_path(exclude) if exclude else []
     content = render_content(include, exclude)
     if len(include) < 2:
         # set noindex response header
@@ -116,7 +101,7 @@ def product_combination_with_exclusions_view(include, exclude):
 
 @freezer.register_generator
 def product_combination_generator():
-    yield product_combinations_root.__name__, {}
+    yield product_combinations.__name__, {}
     yield from url_queue
 
 
