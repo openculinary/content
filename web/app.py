@@ -45,9 +45,7 @@ def product_combination_url(include, exclude):
 
 
 def explore_params(include, exclude):
-    return {
-        'ingredients[]': include + [f'-{product}' for product in exclude]
-    }
+    return {'ingredients[]': include + [f'-{product}' for product in exclude]}
 
 
 def render_content(include=None, exclude=None):
