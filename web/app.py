@@ -51,6 +51,8 @@ def explore_params(include, exclude):
 def render_content(include=None, exclude=None):
     include = include or []
     exclude = exclude or []
+    depth = len(set(include + exclude))
+
     print(f'* Requesting include={include} exclude={exclude} ... ', end='')
 
     params = explore_params(include, exclude)
@@ -66,7 +68,10 @@ def render_content(include=None, exclude=None):
     recipes = []
 
     total = response['total']
-    choices = [product for product in response['facets']['products']]
+    choices = [
+        product for product in response['facets']['products']
+        if not depth > 3  # limit recursion depth
+    ]
     for choice in choices:
         product, count = choice['key'], choice['count']
         if count < 10:
