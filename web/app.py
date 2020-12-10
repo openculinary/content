@@ -119,6 +119,5 @@ if __name__ == '__main__':
     for url, path in freezer.freeze_yield():
         path = Path(content_directory, path)
         with open(path) as f:
-            content = f.read()
-            content = json.loads(content)
+            content = json.loads(f.read())
             url_queue += extract_links(content)
