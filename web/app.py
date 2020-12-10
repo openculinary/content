@@ -44,14 +44,18 @@ def product_combination_url(include, exclude):
     return url
 
 
+def explore_params(include, exclude):
+    return {
+        'ingredients[]': include + [f'-{product}' for product in exclude]
+    }
+
+
 def render_content(include=None, exclude=None):
     include = include or []
     exclude = exclude or []
     print(f'* Requesting include={include} exclude={exclude} ... ', end='')
 
-    params = {
-        'ingredients[]': include + [f'-{product}' for product in exclude]
-    }
+    params = explore_params(include, exclude)
     response = requests_session.get(
         url='https://www.reciperadar.com/api/recipes/explore',
         params=params
