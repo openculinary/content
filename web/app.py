@@ -29,7 +29,7 @@ url_queue = []
 
 
 def products_from_path(path):
-    return path.split('/')
+    return path.split('/') if path else []
 
 
 def product_combination_url(include, exclude):
@@ -88,8 +88,8 @@ def render_content(include=None, exclude=None):
 @app.route('/product-combinations/+/<path:include>/data.json')
 @app.route('/product-combinations/+/<path:include>/-/<path:exclude>/data.json')
 def product_combinations(include=None, exclude=None):
-    include = products_from_path(include) if include else []
-    exclude = products_from_path(exclude) if exclude else []
+    include = products_from_path(include)
+    exclude = products_from_path(exclude)
     content = render_content(include, exclude)
     if len(include) < 2:
         # set noindex response header
