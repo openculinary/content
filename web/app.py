@@ -70,7 +70,7 @@ def render_content(include=None, exclude=None):
     total = response['total']
     choices = [
         product for product in response['facets']['products']
-        if not depth > 3  # limit recursion depth
+        if not depth > 2  # limit recursion depth
     ]
     for choice in choices:
         product, count = choice['key'], choice['count']
