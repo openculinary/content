@@ -38,7 +38,7 @@ venv/.installed:
 requirements.txt: requirements.in
 	venv/bin/pip-compile --allow-unsafe --generate-hashes --no-header requirements.in
 
-requirements-dev.txt: requirements-dev.in
+requirements-dev.txt: requirements.txt requirements-dev.in
 	venv/bin/pip-compile --allow-unsafe --generate-hashes --no-header requirements-dev.in
 
 lint: venv
