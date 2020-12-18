@@ -23,15 +23,31 @@ image-create:
 
 image-finalize:
 	buildah copy $(container) 'public' '/usr/share/nginx/html'
-	buildah config --port 80 --entrypoint '/usr/sbin/nginx -g "daemon off;"' $(container)
-	buildah commit --squash --rm $(container) ${IMAGE_NAME}:${IMAGE_TAG}
+	buildah config --port 80 --cmd '/usr/sbin/nginx -g "daemon off;"' $(container)
+	buildah commit --rm --squash $(container) ${IMAGE_NAME}:${IMAGE_TAG}
 
-lint:
-	pipenv run flake8
+# Virtualenv Makefile pattern derived from https://github.com/bottlepy/bottle/
+venv: venv/.installed requirements.txt requirements-dev.txt
+	venv/bin/pip install --requirement requirements-dev.txt
+	touch venv
+venv/.installed:
+	python3 -m venv venv
+	venv/bin/pip install pip-tools
+	touch venv/.installed
 
-tests:
-	pipenv run pytest tests
+requirements.txt: requirements.in
+	venv/bin/pip-compile --allow-unsafe --generate-hashes --no-header requirements.in
 
-render-content:
+requirements-dev.txt: requirements-dev.in
+	venv/bin/pip-compile --allow-unsafe --generate-hashes --no-header requirements-dev.in
+
+lint: venv
+	venv/bin/flake8 tests
+	venv/bin/flake8 web
+
+tests: venv
+	venv/bin/pytest tests
+
+render-content: venv
 	rm -rf public
-	pipenv run python -m web.app
+	venv/bin/python -m web.app
