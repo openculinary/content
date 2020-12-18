@@ -24,7 +24,7 @@ image-create:
 image-finalize:
 	buildah copy $(container) 'public' '/usr/share/nginx/html'
 	buildah config --port 80 --cmd '/usr/sbin/nginx -g "daemon off;"' $(container)
-	buildah commit --rm --squash $(container) ${IMAGE_NAME}:${IMAGE_TAG}
+	buildah commit --quiet --rm --squash $(container) ${IMAGE_NAME}:${IMAGE_TAG}
 
 # Virtualenv Makefile pattern derived from https://github.com/bottlepy/bottle/
 venv: venv/.installed requirements.txt requirements-dev.txt
