@@ -1,4 +1,4 @@
-.PHONY: build lint tests
+.PHONY: build deploy image image-create render-content image-finalize lint tests
 
 SERVICE=$(shell basename $(shell git rev-parse --show-toplevel))
 REGISTRY=registry.openculinary.org
@@ -8,18 +8,22 @@ IMAGE_NAME=${REGISTRY}/${PROJECT}/${SERVICE}
 IMAGE_COMMIT := $(shell git rev-parse --short HEAD)
 IMAGE_TAG := $(strip $(if $(shell git status --porcelain --untracked-files=no), latest, ${IMAGE_COMMIT}))
 
-build-dev: image-create render-content image-finalize
-
-build: lint tests image-create render-content image-finalize
+build: image
 
 deploy:
 	kubectl apply -f k8s
 	kubectl set image deployments -l app=${SERVICE} ${SERVICE}=${IMAGE_NAME}:${IMAGE_TAG}
 
+image: image-create render-content image-finalize
+
 image-create:
 	$(eval container=$(shell buildah from docker.io/library/nginx:alpine))
 	buildah copy $(container) 'etc/nginx/conf.d' '/etc/nginx/conf.d'
 	buildah run $(container) -- rm -rf /usr/share/nginx/html --
+
+render-content: venv
+	rm -rf public
+	venv/bin/python -m web.app
 
 image-finalize:
 	buildah copy $(container) 'public' '/usr/share/nginx/html'
@@ -47,7 +51,3 @@ lint: venv
 
 tests: venv
 	venv/bin/pytest tests
-
-render-content: venv
-	rm -rf public
-	venv/bin/python -m web.app
