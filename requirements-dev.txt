@@ -30,9 +30,9 @@ flask==2.0.1 \
     # via
     #   -r requirements.txt
     #   frozen-flask
-frozen-flask==0.15 \
-    --hash=sha256:0a7a71334210ce84f8cbd1dc23c8b265d3e21748805c09c77d0e6fbcc4faab14 \
-    --hash=sha256:83858d6ed8b9d3fa7fc9523e415e65fb86b99352798d7695f63cffbd59a56269
+frozen-flask==0.18 \
+    --hash=sha256:4113638baebb348e16b10b12cbd88bddc7309f24d94332a18ae6a56c8ac02d3d \
+    --hash=sha256:6d892fd929f6676c3270b7d91d86a1fc03c9850dc21e3b02b3946381c48ab307
     # via -r requirements.txt
 idna==2.10 \
     --hash=sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6 \
