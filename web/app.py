@@ -7,6 +7,9 @@ from flask_frozen import Freezer
 import requests
 
 
+USER_AGENT = 'RecipeRadarContentCrawler 1.0.0'
+
+
 content_directory = Path(__file__).parent.parent.joinpath('public').resolve()
 
 app = Flask(__name__)
@@ -58,6 +61,7 @@ def render_content(include=None, exclude=None):
     params = explore_params(include, exclude)
     response = requests_session.get(
         url='https://www.reciperadar.com/api/recipes/explore',
+        headers={'User-Agent': USER_AGENT},
         params=params
     ).json()
 
