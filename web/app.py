@@ -7,48 +7,50 @@ from flask_frozen import Freezer
 import requests
 
 
-USER_AGENT = 'RecipeRadarContentCrawler 1.0.0'
+USER_AGENT = "RecipeRadarContentCrawler 1.0.0"
 
 
-content_directory = Path(__file__).parent.parent.joinpath('public').resolve()
+content_directory = Path(__file__).parent.parent.joinpath("public").resolve()
 
 app = Flask(__name__)
-app.config.update({'FREEZER_DESTINATION': content_directory})
+app.config.update({"FREEZER_DESTINATION": content_directory})
 
 freezer = Freezer(app)
 requests_session = requests.Session()
-requests_adapter = requests.adapters.HTTPAdapter(max_retries=Retry(
-    total=None,
-    connect=None,
-    read=None,
-    redirect=None,
-    status=None,
-    other=None,
-    backoff_factor=0.1,
-))
-requests_session.mount('https', requests_adapter)
+requests_adapter = requests.adapters.HTTPAdapter(
+    max_retries=Retry(
+        total=None,
+        connect=None,
+        read=None,
+        redirect=None,
+        status=None,
+        other=None,
+        backoff_factor=0.1,
+    )
+)
+requests_session.mount("https", requests_adapter)
 
 url_queue = []
 
 
 def products_from_path(path):
-    return path.split('/') if path else []
+    return path.split("/") if path else []
 
 
 def product_combination_url(include, exclude):
-    url = '/product-combinations'
+    url = "/product-combinations"
     if include:
-        url += '/+/'
-        url += '/'.join(include)
+        url += "/+/"
+        url += "/".join(include)
     if exclude:
-        url += '/-/'
-        url += '/'.join(exclude)
-    url += '/data.json'
+        url += "/-/"
+        url += "/".join(exclude)
+    url += "/data.json"
     return url
 
 
 def explore_params(include, exclude):
-    return {'ingredients[]': include + [f'-{product}' for product in exclude]}
+    return {"ingredients[]": include + [f"-{product}" for product in exclude]}
 
 
 def render_content(include=None, exclude=None):
@@ -56,28 +58,29 @@ def render_content(include=None, exclude=None):
     exclude = exclude or []
     depth = len(set(include + exclude))
 
-    print(f'* Requesting include={include} exclude={exclude} ... ', end='')
+    print(f"* Requesting include={include} exclude={exclude} ... ", end="")
 
     params = explore_params(include, exclude)
     response = requests_session.get(
-        url='https://www.reciperadar.com/api/recipes/explore',
-        headers={'User-Agent': USER_AGENT},
-        params=params
+        url="https://www.reciperadar.com/api/recipes/explore",
+        headers={"User-Agent": USER_AGENT},
+        params=params,
     ).json()
 
-    print(' done')
+    print(" done")
 
     products = []
     product_combinations = []
     recipes = []
 
-    total = response['total']
+    total = response["total"]
     choices = [
-        product for product in response['facets']['products']
+        product
+        for product in response["facets"]["products"]
         if not depth > 2  # limit recursion depth
     ]
     for choice in choices:
-        product, count = choice['key'], choice['count']
+        product, count = choice["key"], choice["count"]
         if count < 10:
             continue
         url = product_combination_url(include + [product], exclude)
@@ -87,15 +90,15 @@ def render_content(include=None, exclude=None):
             product_combinations.append(url)
 
     return {
-        'products': products,
-        'product-combinations': product_combinations,
-        'recipes': recipes,
+        "products": products,
+        "product-combinations": product_combinations,
+        "recipes": recipes,
     }
 
 
-@app.route('/product-combinations/data.json')
-@app.route('/product-combinations/+/<path:include>/data.json')
-@app.route('/product-combinations/+/<path:include>/-/<path:exclude>/data.json')
+@app.route("/product-combinations/data.json")
+@app.route("/product-combinations/+/<path:include>/data.json")
+@app.route("/product-combinations/+/<path:include>/-/<path:exclude>/data.json")
 def product_combinations(include=None, exclude=None):
     include = products_from_path(include)
     exclude = products_from_path(exclude)
@@ -124,7 +127,7 @@ def extract_links(content):
     yield content
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     for url, path in freezer.freeze_yield():
         path = Path(content_directory, path)
         with open(path) as f:
