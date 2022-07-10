@@ -1,23 +1,18 @@
-import json
-import responses
+import pytest
 
 
-@responses.activate
-def test_request(client):
-    responses.add(
-        method=responses.GET,
-        url="https://www.reciperadar.com/api/recipes/explore",
-        body=json.dumps(
-            {
-                "facets": {
-                    "products": [
-                        {"key": "few_results", "count": 5},
-                        {"key": "many_results", "count": 50},
-                    ]
-                },
-                "total": 0,
-            }
-        ),
+@pytest.mark.respx(base_url="https://www.reciperadar.com", assert_all_called=True)
+def test_request(client, respx_mock):
+    respx_mock.get("/api/recipes/explore").respond(
+        json={
+            "facets": {
+                "products": [
+                    {"key": "few_results", "count": 5},
+                    {"key": "many_results", "count": 50},
+                ]
+            },
+            "total": 0,
+        }
     )
     response = client.get("/product-combinations/data.json")
 

@@ -1,10 +1,10 @@
 import json
 from pathlib import Path
-from urllib3.util import Retry
+from tenacity import retry, wait_exponential
 
 from flask import Flask, jsonify
 from flask_frozen import Freezer
-import requests
+import httpx
 
 
 USER_AGENT = "RecipeRadarContentCrawler 1.0.0"
@@ -16,19 +16,6 @@ app = Flask(__name__)
 app.config.update({"FREEZER_DESTINATION": content_directory})
 
 freezer = Freezer(app)
-requests_session = requests.Session()
-requests_adapter = requests.adapters.HTTPAdapter(
-    max_retries=Retry(
-        total=None,
-        connect=None,
-        read=None,
-        redirect=None,
-        status=None,
-        other=None,
-        backoff_factor=0.1,
-    )
-)
-requests_session.mount("https", requests_adapter)
 
 url_queue = []
 
@@ -53,6 +40,15 @@ def explore_params(include, exclude):
     return {"ingredients[]": include + [f"-{product}" for product in exclude]}
 
 
+@retry(wait=wait_exponential(min=1, max=60))
+def explore(params):
+    return httpx.get(
+        url="https://www.reciperadar.com/api/recipes/explore",
+        headers={"User-Agent": USER_AGENT},
+        params=params,
+    ).json()
+
+
 def render_content(include=None, exclude=None):
     include = include or []
     exclude = exclude or []
@@ -61,11 +57,7 @@ def render_content(include=None, exclude=None):
     print(f"* Requesting include={include} exclude={exclude} ... ", end="")
 
     params = explore_params(include, exclude)
-    response = requests_session.get(
-        url="https://www.reciperadar.com/api/recipes/explore",
-        headers={"User-Agent": USER_AGENT},
-        params=params,
-    ).json()
+    response = explore(params)
 
     print(" done")
 

@@ -1,3 +1,4 @@
 flask==2.1.2
 frozen-flask==0.18
-requests[use_chardet_on_py3]==2.28.1
+httpx==0.23.0
+tenacity==8.0.1
