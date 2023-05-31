@@ -1,4 +1,4 @@
 flask==2.3.2
 frozen-flask==0.18
-httpx==0.24.0
+httpx==0.24.1
 tenacity==8.1.0
