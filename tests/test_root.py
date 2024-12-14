@@ -1,7 +1,11 @@
 import pytest
 
 
-@pytest.mark.respx(base_url="https://www.reciperadar.com", assert_all_called=True)
+@pytest.mark.respx(
+    base_url="https://www.reciperadar.com",
+    assert_all_called=True,
+    using="httpx",
+)
 def test_request(client, respx_mock):
     respx_mock.get("/api/recipes/explore").respond(
         json={
